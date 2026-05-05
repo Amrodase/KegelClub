@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.run.us_west1.kegelverein_mitglieder_app_665548181926.twa",
+        "sha256_cert_fingerprints": ["67:24:F2:4A:DF:24:39:C9:0D:69:E7:8D:55:F5:7C:E7:A8:48:6E:E1:45:90:58:14:32:C7:9E:09:BB:D1:A9:A3"]
+      }
+    }]

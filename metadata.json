@@ -1,0 +1,5 @@
+{
+  "name": "Kegelverein Mitglieder-App",
+  "description": "Full-Stack PWA für Kegelvereine mit Aiven-Datenbank, Statistiken und Kassenverwaltung.",
+  "requestFramePermissions": []
+}

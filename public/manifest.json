@@ -1,0 +1,82 @@
+{
+    "name": "Kegelverein Mitglieder-App",
+    "short_name": "Kegel Club",
+    "id": "app.kegelclub.v1",
+    "description": "Die offizielle App für unseren Kegelverein - Statistiken, Termine und Kasse.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "lang": "de-DE",
+    "categories": [
+        "social",
+        "sports",
+        "utilities"
+    ],
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Chat",
+            "url": "/chat",
+            "description": "Zum Vereins-Chat"
+        },
+        {
+            "name": "Termine",
+            "url": "/appointments",
+            "description": "Nächste Kegelabende sehen"
+        },
+        {
+            "name": "Kasse",
+            "url": "/finance",
+            "description": "Kassenstand prüfen"
+        },
+        {
+            "name": "Statistik",
+            "url": "/stats",
+            "description": "Pudelkönig und Statistiken"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "https://picsum.photos/seed/kegel_mobile/1080/1920",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Home Screen"
+        },
+        {
+            "src": "https://picsum.photos/seed/kegel_desktop/1920/1080",
+            "sizes": "1920x1080",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Dashboard"
+        }
+    ],
+    "orientation": "portrait",
+    "scope": "/"
+}
