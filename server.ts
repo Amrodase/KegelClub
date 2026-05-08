@@ -67,7 +67,11 @@ const pool = new Pool({
   }
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'kegel-secret-123';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET environment variable is not defined.');
+  process.exit(1);
+}
 
 async function initDb() {
   console.log('Initializing database...');
@@ -453,14 +457,8 @@ async function startServer() {
     }
   });
 
-  app.get('/api/debug_members', authenticateToken, isAdmin, async (req, res) => {
-    try {
-      const result = await pool.query('SELECT name, username, open_amount, total_donations FROM members');
-      res.json(result.rows);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  // RESTRICTED: Disabled debug routes
+  app.get('/api/debug_members', authenticateToken, isAdmin, (req, res) => res.status(403).json({ error: 'Disabled' }));                
 
   app.get('/api/test', (req, res) => {
     res.json({ success: true });
@@ -657,32 +655,12 @@ async function startServer() {
   });
 
   // DB Status route
-  app.get('/api/debug/db-status', async (req, res) => {
-    try {
-      const result = await pool.query("SELECT COUNT(*) FROM members WHERE (username IS NULL OR username != 'admin') AND name NOT IN ('Administrator', 'Administratot')");
-      res.json({ 
-        status: 'ok', 
-        memberCount: result.rows[0].count,
-        dbUrlDefined: !!process.env.DATABASE_URL
-      });
-    } catch (err) {
-      res.status(500).json({ 
-        status: 'error', 
-        error: (err as any).message,
-        dbUrlDefined: !!process.env.DATABASE_URL
-      });
-    }
-  });
+  // RESTRICTED: Disabled debug routes
+  app.get('/api/debug/db-status', (req, res) => res.status(403).json({ error: 'Disabled' }));
 
   // Debug route to list users (REMOVE IN PRODUCTION)
-  app.get('/api/debug/users', async (req, res) => {
-    try {
-      const result = await pool.query("SELECT * FROM members");
-      res.json(result.rows);
-    } catch (err) {
-      res.status(500).json({ error: 'Error fetching users' });
-    }
-  });
+  // RESTRICTED: Disabled debug routes
+  app.get('/api/debug/users', (req, res) => res.status(403).json({ error: 'Disabled' }));
 
   // Dashboard Stats
   app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
