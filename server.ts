@@ -56,10 +56,6 @@ const upload = multer({ storage });
 // const { Pool } = pg;
 
 // Aiven PostgreSQL Connection
-import fs from 'fs';
-import path from 'path';
-
-// Aiven PostgreSQL Connection
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not defined in environment variables!');
 } else {
