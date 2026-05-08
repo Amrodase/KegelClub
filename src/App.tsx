@@ -474,7 +474,6 @@ export default function App() {
   const [pollOptions, setPollOptions] = useState<string[]>(['Option 1', 'Option 2']);
   const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
   const [clubSettings, setClubSettings] = useState<any>({ club_name: 'Kegelverein', logo_url: '/icon-192.png', banner_url: '', primary_color: '#fbbf24', secondary_color: '#10b981' });
-  const [dbStatus, setDbStatus] = useState<any>(null);
   
   // Admin Forms States
   const [newsForm, setNewsForm] = useState({ title: '', content: '' });
@@ -524,11 +523,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/debug/db-status')
-      .then(res => res.json())
-      .then(data => setDbStatus(data))
-      .catch(err => setDbStatus({ status: 'error', error: err.message }));
-
     const savedToken = localStorage.getItem('kegel_token');
     if (savedToken) {
       fetch('/api/auth/me', {
@@ -690,15 +684,7 @@ export default function App() {
             <h1 className="text-3xl font-bold text-slate-50">{clubSettings.club_name || 'KegelApp'}</h1>
             <p className="text-slate-400">Mitglieder-Login</p>
             
-            {dbStatus && (
-              <div className={cn(
-                "mt-4 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full inline-block",
-                dbStatus.status === 'ok' ? "bg-green-400/10 text-green-400" : "bg-red-400/10 text-red-400"
-              )}>
-                DB Status: {dbStatus.status} {dbStatus.memberCount !== undefined && `(${dbStatus.memberCount} User)`}
-                {dbStatus.error && ` - ${dbStatus.error}`}
-              </div>
-            )}
+            {/* Removed DB Status display */}
           </div>
 
           <Card className="shadow-2xl border-slate-700/50">
@@ -1592,7 +1578,7 @@ export default function App() {
                                     const newRole = m.role === 'admin' ? 'member' : 'admin';
                                     try {
                                       const res = await fetch(`/api/admin/members/${m.id}/role`, {
-                                        method: 'PUT',
+                                        method: 'PATCH',
                                         headers: { 
                                           'Authorization': `Bearer ${token}`,
                                           'Content-Type': 'application/json'
