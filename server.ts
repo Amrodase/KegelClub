@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Pool, PoolClient } from 'pg';
+import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -11,6 +11,8 @@ import fs from 'fs';
 import webPush from 'web-push';
 import { createServer as createHttpServer } from 'http';
 import { Server } from 'socket.io';
+
+const { Pool } = pg;
 
 declare global {
   namespace Express {
