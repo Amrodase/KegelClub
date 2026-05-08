@@ -1,13 +1,13 @@
 const CACHE_NAME = 'kegel-app-v2';
-const OFFLINE_URL = '/offline.html';
+const OFFLINE_URL = './offline.html';
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
   OFFLINE_URL,
-  '/icon-192.png',
-  '/icon-512.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -66,8 +66,8 @@ self.addEventListener('push', function(event) {
     const title = data.title || 'Benachrichtigung';
     const options = {
       body: data.body || 'Neue Updates aus der App',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/'
