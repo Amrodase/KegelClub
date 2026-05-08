@@ -33,8 +33,8 @@ import type {
 
 dotenv.config();
 
-// Fix for Aiven self-signed certificate issue
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// Fix for Aiven self-signed certificate issue, handled in Pool config now
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const RP_ID = process.env.RP_ID || 'localhost';
 const RP_NAME = 'Kegelverein App';
@@ -63,7 +63,7 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false
+    rejectUnauthorized: true,
   }
 });
 
@@ -1215,7 +1215,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get(/^\/(?!api).*/, (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
