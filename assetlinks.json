@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.onrender.kegelclub.twa",
+        "sha256_cert_fingerprints": ["91:1A:AB:3F:91:85:26:18:5B:8A:24:51:C3:93:26:E2:97:9C:AB:82:01:65:89:AB:1D:8F:CB:E8:71:FC:DB:0B"]
+      }
+    }]
