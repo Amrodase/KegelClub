@@ -56,6 +56,10 @@ const upload = multer({ storage });
 // const { Pool } = pg;
 
 // Aiven PostgreSQL Connection
+import fs from 'fs';
+import path from 'path';
+
+// Aiven PostgreSQL Connection
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not defined in environment variables!');
 } else {
@@ -64,7 +68,10 @@ if (!process.env.DATABASE_URL) {
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: {
+    rejectUnauthorized: true,
+    ca: fs.readFileSync(path.join(process.cwd(), 'certs', 'ca.pem')).toString(),
+  }
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
