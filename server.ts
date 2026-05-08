@@ -68,7 +68,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync(path.join(process.cwd(), 'certs', 'ca.pem')).toString(),
+    ca: process.env.DATABASE_CA_CERT,
   }
 });
 
