@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pg from 'pg';
+import { Pool, PoolClient } from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -34,7 +34,7 @@ import type {
 dotenv.config();
 
 // Fix for Aiven self-signed certificate issue, handled in Pool config now
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const RP_ID = process.env.RP_ID || 'localhost';
 const RP_NAME = 'Kegelverein App';
@@ -53,18 +53,18 @@ const storage = multer.memoryStorage();
 
 const upload = multer({ storage });
 
-const { Pool } = pg;
+// const { Pool } = pg;
 
 // Aiven PostgreSQL Connection
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not defined in environment variables!');
+} else {
+  console.log('DATABASE_URL is defined.');
 }
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
