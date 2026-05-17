@@ -458,7 +458,7 @@ const subscribeToPush = async (token: string) => {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'stats' | 'appointments' | 'finance' | 'admin' | 'resetPassword' | 'chat'>('home');
+  const [view, setView] = useState<'home' | 'stats' | 'appointments' | 'finance' | 'admin' | 'resetPassword' | 'chat' | 'settings'>('home');
   const [payAmount, setPayAmount] = useState<number>(0);
   const [resetData, setResetData] = useState({ username: '', newPassword: '', confirmPassword: '' });
   const [adminTab, setAdminTab] = useState<'verein' | 'mitglieder' | 'content' | 'termine' | 'kasse'>('verein');
@@ -481,6 +481,7 @@ export default function App() {
   const [cashForm, setCashForm] = useState({ member_id: '', amount: '', description: '', spende: false });
   const [statsForm, setStatsForm] = useState({ member_id: '', pudel: 0, gewonnen: 0, verloren: 0, abwesend: 0, klingeln: 0 });
   const [memberForm, setMemberForm] = useState({ username: '', password: '', name: '', role: 'member' });
+  const [passwordChangeForm, setPasswordChangeForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
 
   // Real Data States
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -779,7 +780,8 @@ export default function App() {
               {view === 'appointments' && 'Termine'}
               {view === 'finance' && 'Kasse'}
               {view === 'admin' && 'Admin-Zentrale'}
-              {(!['chat', 'stats', 'appointments', 'finance', 'home', 'admin'].includes(view)) && (clubSettings.club_name || 'KegelApp')}
+              {view === 'settings' && 'Einstellungen'}
+              {(!['chat', 'stats', 'appointments', 'finance', 'home', 'admin', 'settings'].includes(view)) && (clubSettings.club_name || 'KegelApp')}
             </span>
             {view === 'home' && (
               <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Aktueller Status</span>
@@ -806,6 +808,7 @@ export default function App() {
         {user.role === 'admin' && (
           <MobileNavBtn active={view === 'admin'} icon={Shield} label="Admin" onClick={() => setView('admin')} />
         )}
+        <MobileNavBtn active={view === 'settings'} icon={Settings} label="Settings" onClick={() => setView('settings')} />
       </nav>
 
       {/* Main Content */}
@@ -1300,6 +1303,112 @@ export default function App() {
 
             {view === 'chat' && (
               <ChatView user={user} token={token!} />
+            )}
+
+            {view === 'settings' && (
+              <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                <Card title="Einstellungen" subtitle="Persönliche Daten und Sicherheit">
+                   <div className="space-y-6">
+                     <div className="p-4 bg-slate-900 rounded-2xl border border-slate-700/50 flex items-center gap-4">
+                       <div className="w-12 h-12 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400">
+                         <Users size={24} />
+                       </div>
+                       <div>
+                         <p className="text-sm font-bold text-slate-50">{user.name}</p>
+                         <p className="text-xs text-slate-400">@{user.username || 'mitglied'}</p>
+                       </div>
+                     </div>
+
+                     <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                          <Shield size={16} className="text-sky-500" />
+                          Passwort ändern
+                        </h4>
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Aktuelles Passwort</label>
+                            <input 
+                              type="password"
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
+                              value={passwordChangeForm.oldPassword}
+                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, oldPassword: e.target.value})}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Neues Passwort</label>
+                            <input 
+                              type="password"
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
+                              value={passwordChangeForm.newPassword}
+                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, newPassword: e.target.value})}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Bestätigen</label>
+                            <input 
+                              type="password"
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
+                              value={passwordChangeForm.confirmPassword}
+                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, confirmPassword: e.target.value})}
+                            />
+                          </div>
+                          <button 
+                            onClick={async () => {
+                              const { oldPassword, newPassword, confirmPassword } = passwordChangeForm;
+
+                              if (!oldPassword || !newPassword) {
+                                alert('Bitte fülle alle Felder aus.');
+                                return;
+                              }
+
+                              if (newPassword !== confirmPassword) {
+                                alert('Die neuen Passwörter stimmen nicht überein.');
+                                return;
+                              }
+
+                              try {
+                                const res = await fetch('/api/auth/change-password', {
+                                  method: 'POST',
+                                  headers: { 
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({ oldPassword, newPassword })
+                                });
+                                const data = await res.json();
+                                if (res.ok) {
+                                  alert('Passwort erfolgreich geändert!');
+                                  setPasswordChangeForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                                } else {
+                                  alert(data.error || 'Fehler beim Ändern des Passworts');
+                                }
+                              } catch (err) {
+                                alert('Netzwerkfehler');
+                              }
+                            }}
+                            className="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-sky-500/20"
+                          >
+                            Passwort aktualisieren
+                          </button>
+                        </div>
+                     </div>
+
+                     <div className="pt-4 border-t border-slate-700/50">
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
+                          <LogOut size={18} />
+                          Abmelden
+                        </button>
+                     </div>
+                   </div>
+                </Card>
+
+                <div className="text-center opacity-30 pointer-events-none">
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Kegelverein App v1.3</p>
+                </div>
+              </motion.div>
             )}
 
             {view === 'admin' && user.role === 'admin' && (

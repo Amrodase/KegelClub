@@ -1130,7 +1130,7 @@ async function startServer() {
     }
   });
 
-  // Password Reset
+  // Password Reset (Admin)
   app.post('/api/auth/reset-password', async (req, res) => {
     const { username, newPassword } = req.body;
     
@@ -1148,6 +1148,34 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: 'Error resetting password' });
+    }
+  });
+
+  // Self password change
+  app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = (req as any).user.id;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Das neue Passwort muss mindestens 6 Zeichen lang sein.' });
+    }
+
+    try {
+      const result = await pool.query('SELECT password FROM members WHERE id = $1', [userId]);
+      const user = result.rows[0];
+      if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'Das aktuelle Passwort ist nicht korrekt.' });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await pool.query('UPDATE members SET password = $1 WHERE id = $2', [hashedPassword, userId]);
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error changing password:', err);
+      res.status(500).json({ error: 'Fehler beim Ändern des Passworts' });
     }
   });
 
