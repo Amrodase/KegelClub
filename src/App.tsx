@@ -474,6 +474,13 @@ export default function App() {
   const [pollOptions, setPollOptions] = useState<string[]>(['Option 1', 'Option 2']);
   const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
   const [clubSettings, setClubSettings] = useState<any>({ club_name: 'Kegelverein', logo_url: '/icon-192.png', banner_url: '', primary_color: '#fbbf24', secondary_color: '#10b981' });
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('kegel_username');
+    if (savedUser) {
+      setLoginData(prev => ({ ...prev, username: savedUser }));
+    }
+  }, []);
   
   // Admin Forms States
   const [newsForm, setNewsForm] = useState({ title: '', content: '' });
@@ -719,6 +726,23 @@ export default function App() {
                   </button>
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={!!localStorage.getItem('kegel_username')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      localStorage.setItem('kegel_username', loginData.username);
+                    } else {
+                      localStorage.removeItem('kegel_username');
+                    }
+                  }}
+                  className="rounded border-slate-700 bg-slate-900 text-sky-500 focus:ring-sky-400"
+                />
+                <label htmlFor="rememberMe" className="text-xs text-slate-400 cursor-pointer">Benutzername merken</label>
+              </div>
+              
               <button 
                 type="submit"
                 disabled={loading}
@@ -728,32 +752,7 @@ export default function App() {
                 {!loading && <ChevronRight size={20} />}
               </button>
 
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-800"></div>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-slate-900 px-2 text-slate-400">Oder</span>
-                </div>
-              </div>
-
-              <button 
-                type="button"
-                onClick={handleLoginWithPasskey}
-                className="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-50 border border-slate-700/50 font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
-              >
-                <Fingerprint size={20} className="text-sky-600" />
-                Login mit Passkey
-              </button>
             </form>
-            <div className="mt-6 text-center">
-              <button 
-                onClick={() => setView('resetPassword')}
-                className="text-sm text-slate-400 hover:text-sky-600 transition-colors"
-              >
-                Passwort vergessen?
-              </button>
-            </div>
           </Card>
         </motion.div>
       </div>
