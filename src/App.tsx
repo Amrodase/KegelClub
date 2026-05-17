@@ -495,6 +495,7 @@ export default function App() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [newsData, setNewsData] = useState<any[]>([]);
   const [appointmentsData, setAppointmentsData] = useState<any[]>([]);
+  const [absentMembers, setAbsentMembers] = useState<Record<string, string[]>>({});
   const [token, setToken] = useState<string | null>(localStorage.getItem('kegel_token'));
 
   // Deep linking support
@@ -524,7 +525,25 @@ export default function App() {
         setPayAmount(data.personal?.open_amount || 0);
       }
       if (newsRes.ok) setNewsData(await newsRes.json());
-      if (apptsRes.ok) setAppointmentsData(await apptsRes.json());
+      if (apptsRes.ok) {
+        const appts = await apptsRes.json();
+        setAppointmentsData(appts);
+
+        // Fetch absent members
+        const absentPromises = appts.map(async (appt: any) => {
+          if (appt.absent_count > 0) {
+            const res = await fetch(`/api/appointments/${appt.id}/absent`, { headers });
+            if (res.ok) {
+              const members = await res.json();
+              return { id: appt.id, members: members.map((m: any) => m.name) };
+            }
+          }
+          return { id: appt.id, members: [] };
+        });
+        const absentResults = await Promise.all(absentPromises);
+        const absentMap = absentResults.reduce((acc, obj) => ({...acc, [obj.id]: obj.members}), {});
+        setAbsentMembers(absentMap);
+      }
       if (settingsRes.ok) setClubSettings(await settingsRes.json());
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -1174,6 +1193,11 @@ export default function App() {
                             <Users size={14} className="text-blue-600" />
                             <span>{appt.attending_count || 0} Teilnehmer</span>
                           </div>
+                          {appt.absent_count > 0 && absentMembers[appt.id] && absentMembers[appt.id].length > 0 && (
+                            <div className="mt-1 text-[10px] text-rose-400 bg-rose-900/20 px-2 py-0.5 rounded-full">
+                              Abgemeldet: {absentMembers[appt.id].join(', ')}
+                            </div>
+                          )}
                           <div className="flex gap-2">
                             <button 
                               onClick={() => handleAttendance(appt.id, appt.user_status === 'attending' ? 'absent' : 'attending')}

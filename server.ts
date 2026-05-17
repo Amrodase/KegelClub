@@ -918,6 +918,22 @@ async function startServer() {
     }
   });
 
+  app.get('/api/appointments/:id/absent', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await pool.query(`
+        SELECT m.name 
+        FROM appointment_attendance aa 
+        JOIN members m ON aa.member_id = m.id 
+        WHERE aa.appointment_id = $1 AND aa.status = 'absent'
+      `, [id]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching absent members:', err);
+      res.status(500).json({ error: 'Error fetching absent members' });
+    }
+  });
+
   // Settings
   app.get('/api/settings', async (req, res) => {
     try {
