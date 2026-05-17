@@ -489,6 +489,7 @@ export default function App() {
   const [statsForm, setStatsForm] = useState({ member_id: '', pudel: 0, gewonnen: 0, verloren: 0, abwesend: 0, klingeln: 0 });
   const [memberForm, setMemberForm] = useState({ username: '', password: '', name: '', role: 'member' });
   const [passwordChangeForm, setPasswordChangeForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [passwordVisibility, setPasswordVisibility] = useState({ old: false, new: false, confirm: false });
 
   // Real Data States
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -1326,30 +1327,57 @@ export default function App() {
                         <div className="space-y-3">
                           <div className="space-y-1">
                             <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Aktuelles Passwort</label>
-                            <input 
-                              type="password"
-                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
-                              value={passwordChangeForm.oldPassword}
-                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, oldPassword: e.target.value})}
-                            />
+                            <div className="relative">
+                              <input 
+                                type={passwordVisibility.old ? "text" : "password"}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all pr-10"
+                                value={passwordChangeForm.oldPassword}
+                                onChange={(e) => setPasswordChangeForm({...passwordChangeForm, oldPassword: e.target.value})}
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                onClick={() => setPasswordVisibility({...passwordVisibility, old: !passwordVisibility.old})}
+                              >
+                                {passwordVisibility.old ? <EyeOff size={18} /> : <Eye size={18} />}
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-1">
                             <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Neues Passwort</label>
-                            <input 
-                              type="password"
-                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
-                              value={passwordChangeForm.newPassword}
-                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, newPassword: e.target.value})}
-                            />
+                            <div className="relative">
+                              <input 
+                                type={passwordVisibility.new ? "text" : "password"}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all pr-10"
+                                value={passwordChangeForm.newPassword}
+                                onChange={(e) => setPasswordChangeForm({...passwordChangeForm, newPassword: e.target.value})}
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                onClick={() => setPasswordVisibility({...passwordVisibility, new: !passwordVisibility.new})}
+                              >
+                                {passwordVisibility.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-1">
                             <label className="text-[10px] text-slate-400 uppercase font-bold px-1">Bestätigen</label>
-                            <input 
-                              type="password"
-                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all"
-                              value={passwordChangeForm.confirmPassword}
-                              onChange={(e) => setPasswordChangeForm({...passwordChangeForm, confirmPassword: e.target.value})}
-                            />
+                            <div className="relative">
+                              <input 
+                                type={passwordVisibility.confirm ? "text" : "password"}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-50 outline-none focus:border-sky-500/50 transition-all pr-10"
+                                value={passwordChangeForm.confirmPassword}
+                                onChange={(e) => setPasswordChangeForm({...passwordChangeForm, confirmPassword: e.target.value})}
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                onClick={() => setPasswordVisibility({...passwordVisibility, confirm: !passwordVisibility.confirm})}
+                              >
+                                {passwordVisibility.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                              </button>
+                            </div>
                           </div>
                           <button 
                             onClick={async () => {
