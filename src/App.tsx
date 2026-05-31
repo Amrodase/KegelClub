@@ -486,6 +486,7 @@ export default function App() {
   const [newsForm, setNewsForm] = useState({ title: '', content: '' });
   const [appointmentForm, setAppointmentForm] = useState({ date: '', time: '19:00', location: '', description: '', recurring: false, repetitions: 1 });
   const [cashForm, setCashForm] = useState({ member_id: '', amount: '', description: '', spende: false });
+  const [adjustOpenAmountForm, setAdjustOpenAmountForm] = useState({ member_id: '', open_amount: '' });
   const [statsForm, setStatsForm] = useState({ member_id: '', pudel: 0, gewonnen: 0, verloren: 0, abwesend: 0, klingeln: 0 });
   const [memberForm, setMemberForm] = useState({ username: '', password: '', name: '', role: 'member' });
   const [passwordChangeForm, setPasswordChangeForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -2139,6 +2140,70 @@ export default function App() {
                           </button>
                         </div>
                       </Card>
+
+                      <Card title="Offenen Betrag anpassen" subtitle="Nachzuzahlenden Betrag für ein Mitglied ändern">
+                        <div className="space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-400 uppercase tracking-wider font-bold">Mitglied</label>
+                            <select 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                              value={adjustOpenAmountForm.member_id}
+                              onChange={(e) => {
+                                const m = (dashboardData?.ranking || []).find((x: any) => x.id == e.target.value);
+                                setAdjustOpenAmountForm({
+                                  member_id: e.target.value,
+                                  open_amount: m ? (m.open_amount || 0).toString() : ''
+                                });
+                              }}
+                            >
+                              <option value="">Wählen...</option>
+                              {(dashboardData?.ranking || []).map((m: any) => (
+                                <option key={m.id} value={m.id}>{m.name} (Aktuell: {(m.open_amount || 0).toFixed(2)} €)</option>
+                              ))}
+                            </select>
+                          </div>
+                          <AdminInput 
+                            label="Offener Betrag (€) - negativ bedeutet Guthaben" 
+                            type="number" 
+                            step="0.01"
+                            placeholder="0.00" 
+                            value={adjustOpenAmountForm.open_amount}
+                            onChange={(e: any) => setAdjustOpenAmountForm({ ...adjustOpenAmountForm, open_amount: e.target.value })}
+                          />
+                          <button 
+                            onClick={async () => {
+                              if (!adjustOpenAmountForm.member_id || adjustOpenAmountForm.open_amount === '') return alert('Bitte alle Felder ausfüllen');
+                              try {
+                                const res = await fetch('/api/admin/cash/adjust-open-amount', {
+                                  method: 'POST',
+                                  headers: { 
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    member_id: adjustOpenAmountForm.member_id,
+                                    open_amount: parseFloat(adjustOpenAmountForm.open_amount)
+                                  })
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  alert('Betrag erfolgreich angepasst!');
+                                  setAdjustOpenAmountForm({ member_id: '', open_amount: '' });
+                                  fetchData(token!);
+                                } else {
+                                  alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+                                }
+                              } catch (err) {
+                                console.error('Adjust open amount failed', err);
+                              }
+                            }}
+                            className="w-full bg-sky-600 text-slate-50 font-bold py-2 rounded-lg"
+                          >
+                            Betrag anpassen
+                          </button>
+                        </div>
+                      </Card>
+
                       <Card title="Statistik-Korrektur" subtitle="Spielergebnisse anpassen">
                         <div className="space-y-4">
                           <div className="space-y-1">

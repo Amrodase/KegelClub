@@ -1114,7 +1114,7 @@ async function startServer() {
       if (spende) {
         await pool.query('UPDATE cash_register SET total_donations = total_donations + $1 WHERE member_id = $2', [amount, member_id]);
       } else {
-        await pool.query('UPDATE cash_register SET open_amount = open_amount + $1 WHERE member_id = $2', [amount, member_id]);
+        await pool.query('UPDATE cash_register SET total_paid = total_paid + $1, open_amount = open_amount - $1 WHERE member_id = $2', [amount, member_id]);
       }
       
       await pool.query('COMMIT');
@@ -1123,6 +1123,38 @@ async function startServer() {
       await pool.query('ROLLBACK');
       console.error('Error booking cash:', err);
       res.status(500).json({ error: 'Error booking cash' });
+    }
+  });
+
+  // Admin: Adjust Open Amount
+  app.post('/api/admin/cash/adjust-open-amount', authenticateToken, isAdmin, async (req, res) => {
+    const { member_id, open_amount } = req.body;
+    
+    if (!member_id || isNaN(parseFloat(open_amount))) {
+      return res.status(400).json({ error: 'Ungültige Eingabe: Mitglied und Betrag erforderlich.' });
+    }
+
+    try {
+      await pool.query('BEGIN');
+      
+      const check = await pool.query('SELECT member_id FROM cash_register WHERE member_id = $1', [member_id]);
+      if (check.rows.length === 0) {
+        await pool.query('INSERT INTO cash_register (member_id, open_amount) VALUES ($1, $2)', [member_id, open_amount]);
+      } else {
+        await pool.query('UPDATE cash_register SET open_amount = $1 WHERE member_id = $2', [open_amount, member_id]);
+      }
+      
+      await pool.query(
+        'INSERT INTO cash_transactions (member_id, amount, description, type) VALUES ($1, $2, $3, $4)',
+        [member_id, 0, `Offener Betrag manuell angepasst auf ${open_amount} €`, 'system']
+      );
+
+      await pool.query('COMMIT');
+      res.json({ success: true });
+    } catch (err) {
+      await pool.query('ROLLBACK');
+      console.error('Error adjusting open amount:', err);
+      res.status(500).json({ error: 'Error adjusting open amount' });
     }
   });
 
