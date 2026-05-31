@@ -911,7 +911,9 @@ export default function App() {
                     </div>
                     
                     <div className="mb-2">
-                      <h3 className="text-xl font-black text-slate-50 leading-tight">{Number(dashboardData.clubTotal || 0).toFixed(2)} €</h3>
+                      <h3 className="text-xl font-black text-slate-50 leading-tight">
+                        {Number((dashboardData.clubTotal || 0) + (dashboardData.clubTotalDonations || 0)).toFixed(2)} €
+                      </h3>
                       <p className="text-[#10b981]/60 text-[8px] font-bold uppercase tracking-[0.2em] mt-0.5">Saldo</p>
                     </div>
 
@@ -1226,7 +1228,9 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-[#10b981] uppercase tracking-widest font-bold mb-1">Gesamt Kassenstand</p>
-                      <h3 className="text-3xl font-black text-slate-50">{Number(dashboardData?.clubTotal || 0).toFixed(2)} €</h3>
+                      <h3 className="text-3xl font-black text-slate-50">
+                        {Number((dashboardData?.clubTotal || 0) + (dashboardData?.clubTotalDonations || 0)).toFixed(2)} €
+                      </h3>
                     </div>
                     <div className="p-4 bg-[#10b981]/20 rounded-2xl">
                       <Wallet size={32} className="text-[#10b981]" />
