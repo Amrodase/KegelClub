@@ -1269,7 +1269,7 @@ export default function App() {
                     </div>
                     
                     <a 
-                      href={`https://paypal.me/KegelKasse1/${payAmount}`}
+                      href={`https://paypal.me/KegelKasse1/${payAmount}EUR`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-slate-50 font-black py-4 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-900/20"
