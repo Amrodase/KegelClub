@@ -1158,6 +1158,48 @@ async function startServer() {
     }
   });
 
+  // Admin: Adjust Cash Balances (paid, donations, open_amount)
+  app.post('/api/admin/cash/adjust-balances', authenticateToken, isAdmin, async (req, res) => {
+    const { member_id, open_amount, total_paid, total_donations } = req.body;
+    
+    if (!member_id) {
+      return res.status(400).json({ error: 'Ungültige Eingabe: Mitglied erforderlich.' });
+    }
+
+    const openAmtVal = parseFloat(open_amount) || 0;
+    const paidVal = parseFloat(total_paid) || 0;
+    const donationsVal = parseFloat(total_donations) || 0;
+
+    try {
+      await pool.query('BEGIN');
+      
+      const check = await pool.query('SELECT member_id FROM cash_register WHERE member_id = $1', [member_id]);
+      if (check.rows.length === 0) {
+        await pool.query(
+          'INSERT INTO cash_register (member_id, open_amount, total_paid, total_donations) VALUES ($1, $2, $3, $4)',
+          [member_id, openAmtVal, paidVal, donationsVal]
+        );
+      } else {
+        await pool.query(
+          'UPDATE cash_register SET open_amount = $1, total_paid = $2, total_donations = $3 WHERE member_id = $4',
+          [openAmtVal, paidVal, donationsVal, member_id]
+        );
+      }
+      
+      await pool.query(
+        'INSERT INTO cash_transactions (member_id, amount, description, type) VALUES ($1, $2, $3, $4)',
+        [member_id, 0, `Kassenwerte angepasst (Gezahlt: ${paidVal} €, Spenden: ${donationsVal} €, Offen: ${openAmtVal} €)`, 'system']
+      );
+
+      await pool.query('COMMIT');
+      res.json({ success: true });
+    } catch (err) {
+      await pool.query('ROLLBACK');
+      console.error('Error adjusting cash balances:', err);
+      res.status(500).json({ error: 'Error adjusting cash balances' });
+    }
+  });
+
   // Admin: Stats Update
   app.put('/api/admin/members/:id/stats', authenticateToken, isAdmin, async (req, res) => {
     const { id } = req.params;

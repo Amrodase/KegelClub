@@ -486,7 +486,7 @@ export default function App() {
   const [newsForm, setNewsForm] = useState({ title: '', content: '' });
   const [appointmentForm, setAppointmentForm] = useState({ date: '', time: '19:00', location: '', description: '', recurring: false, repetitions: 1 });
   const [cashForm, setCashForm] = useState({ member_id: '', amount: '', description: '', spende: false });
-  const [adjustOpenAmountForm, setAdjustOpenAmountForm] = useState({ member_id: '', open_amount: '' });
+  const [adjustCashForm, setAdjustCashForm] = useState({ member_id: '', open_amount: '', total_paid: '', total_donations: '' });
   const [statsForm, setStatsForm] = useState({ member_id: '', pudel: 0, gewonnen: 0, verloren: 0, abwesend: 0, klingeln: 0 });
   const [memberForm, setMemberForm] = useState({ username: '', password: '', name: '', role: 'member' });
   const [passwordChangeForm, setPasswordChangeForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -2141,65 +2141,93 @@ export default function App() {
                         </div>
                       </Card>
 
-                      <Card title="Offenen Betrag anpassen" subtitle="Nachzuzahlenden Betrag für ein Mitglied ändern">
+                      <Card title="Kassenwerte & Zahlungen anpassen" subtitle="Zahlungen, Spenden und offene Beträge für ein Mitglied direkt ändern">
                         <div className="space-y-4">
                           <div className="space-y-1">
                             <label className="text-xs text-slate-400 uppercase tracking-wider font-bold">Mitglied</label>
                             <select 
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
-                              value={adjustOpenAmountForm.member_id}
+                              value={adjustCashForm.member_id}
                               onChange={(e) => {
                                 const m = (dashboardData?.ranking || []).find((x: any) => x.id == e.target.value);
-                                setAdjustOpenAmountForm({
+                                setAdjustCashForm({
                                   member_id: e.target.value,
-                                  open_amount: m ? (m.open_amount || 0).toString() : ''
+                                  open_amount: m ? (m.open_amount || 0).toString() : '',
+                                  total_paid: m ? (m.total_paid || 0).toString() : '',
+                                  total_donations: m ? (m.total_donations || 0).toString() : ''
                                 });
                               }}
                             >
                               <option value="">Wählen...</option>
                               {(dashboardData?.ranking || []).map((m: any) => (
-                                <option key={m.id} value={m.id}>{m.name} (Aktuell: {(m.open_amount || 0).toFixed(2)} €)</option>
+                                <option key={m.id} value={m.id}>{m.name} (Gezahlt: {(m.total_paid || 0).toFixed(2)} €, Spenden: {(m.total_donations || 0).toFixed(2)} €)</option>
                               ))}
                             </select>
                           </div>
-                          <AdminInput 
-                            label="Offener Betrag (€) - negativ bedeutet Guthaben" 
-                            type="number" 
-                            step="0.01"
-                            placeholder="0.00" 
-                            value={adjustOpenAmountForm.open_amount}
-                            onChange={(e: any) => setAdjustOpenAmountForm({ ...adjustOpenAmountForm, open_amount: e.target.value })}
-                          />
+                          
+                          {adjustCashForm.member_id && (
+                            <>
+                              <AdminInput 
+                                label="Offener Betrag (€) - negativ bedeutet Guthaben" 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0.00" 
+                                value={adjustCashForm.open_amount}
+                                onChange={(e: any) => setAdjustCashForm({ ...adjustCashForm, open_amount: e.target.value })}
+                              />
+                              <AdminInput 
+                                label="Bisher gezahlte Beiträge (€)" 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0.00" 
+                                value={adjustCashForm.total_paid}
+                                onChange={(e: any) => setAdjustCashForm({ ...adjustCashForm, total_paid: e.target.value })}
+                              />
+                              <AdminInput 
+                                label="Spenden (€)" 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0.00" 
+                                value={adjustCashForm.total_donations}
+                                onChange={(e: any) => setAdjustCashForm({ ...adjustCashForm, total_donations: e.target.value })}
+                              />
+                            </>
+                          )}
+
                           <button 
                             onClick={async () => {
-                              if (!adjustOpenAmountForm.member_id || adjustOpenAmountForm.open_amount === '') return alert('Bitte alle Felder ausfüllen');
+                              if (!adjustCashForm.member_id || adjustCashForm.open_amount === '' || adjustCashForm.total_paid === '' || adjustCashForm.total_donations === '') {
+                                return alert('Bitte alle Felder ausfüllen');
+                              }
                               try {
-                                const res = await fetch('/api/admin/cash/adjust-open-amount', {
+                                const res = await fetch('/api/admin/cash/adjust-balances', {
                                   method: 'POST',
                                   headers: { 
                                     'Authorization': `Bearer ${token}`,
                                     'Content-Type': 'application/json'
                                   },
                                   body: JSON.stringify({
-                                    member_id: adjustOpenAmountForm.member_id,
-                                    open_amount: parseFloat(adjustOpenAmountForm.open_amount)
+                                    member_id: adjustCashForm.member_id,
+                                    open_amount: parseFloat(adjustCashForm.open_amount),
+                                    total_paid: parseFloat(adjustCashForm.total_paid),
+                                    total_donations: parseFloat(adjustCashForm.total_donations)
                                   })
                                 });
                                 const data = await res.json();
                                 if (data.success) {
-                                  alert('Betrag erfolgreich angepasst!');
-                                  setAdjustOpenAmountForm({ member_id: '', open_amount: '' });
+                                  alert('Kassenwerte erfolgreich angepasst!');
+                                  setAdjustCashForm({ member_id: '', open_amount: '', total_paid: '', total_donations: '' });
                                   fetchData(token!);
                                 } else {
                                   alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
                                 }
                               } catch (err) {
-                                console.error('Adjust open amount failed', err);
+                                console.error('Adjust balances failed', err);
                               }
                             }}
-                            className="w-full bg-sky-600 text-slate-50 font-bold py-2 rounded-lg"
+                            className="w-full bg-sky-600 hover:bg-sky-500 text-slate-50 font-bold py-2 rounded-lg transition-colors"
                           >
-                            Betrag anpassen
+                            Werte speichern
                           </button>
                         </div>
                       </Card>
