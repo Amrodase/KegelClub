@@ -1269,7 +1269,7 @@ export default function App() {
                     </div>
                     
                     <a 
-                      href={`https://paypal.me/kegelkasse/${payAmount}EUR`}
+                      href={`https://paypal.me/KegelKasse1/${payAmount}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-slate-50 font-black py-4 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-900/20"
@@ -1279,7 +1279,8 @@ export default function App() {
                     </a>
                     
                     <p className="text-[10px] text-slate-400 text-center">
-                      Du wirst zu PayPal weitergeleitet, um die Zahlung an <strong>kegelkasse@web.de</strong> abzuschließen.
+                      Du wirst zu PayPal weitergeleitet, um die Zahlung an <strong>@KegelKasse1</strong> abzuschließen.<br />
+                      Bitte wähle dort <strong>"Für Freunde und Familie"</strong> (Familie und Freunde), damit keine Gebühren anfallen.
                     </p>
                   </div>
                 </Card>
