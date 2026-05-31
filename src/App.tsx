@@ -1269,7 +1269,7 @@ export default function App() {
                     </div>
                     
                     <a 
-                      href={`https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=kegelkasse@web.de&amount=${payAmount}&currency_code=EUR&item_name=Kegelkasse%20Beitrag%20von%20${user?.name}`}
+                      href={`https://paypal.me/kegelkasse/${payAmount}EUR`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-slate-50 font-black py-4 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-900/20"
